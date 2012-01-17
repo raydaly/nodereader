@@ -1,0 +1,131 @@
+<!DOCTYPE html> 
+<html> 
+	<head> 
+	<title>Nodereader/title> 
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.css" />
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
+	<script type="text/javascript" src="http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.js"></script>
+</head> 
+<body> 
+
+	<div id="tagPg" data-role="page">
+		<div data-role="header">
+			<h1>Nodereader Tags</h1>
+			<a href="#startPg" class="ui-btn-right" data-icon="plus">Title</a>
+		</div><!-- /header -->
+		<div data-role="content">	
+			<ul id="tagList" data-role="listview" data-inset="true" data-filter="true">
+				<li><a href="http://google.com">Google</a></li>
+			</ul>	
+			<a  data-role="button" href="http://dailyjs.com">Daily JS</a>
+			<a  data-role="button" href="#recommendPg">Recommend To Friend</a>
+		</div><!-- /content -->
+	</div><!-- /page -->
+
+	<div id="startPg" data-role="page">
+		<div data-role="header">
+			<h1>Nodereader Articles</h1>
+		</div><!-- /header -->
+		<div data-role="content">	
+			<ul id="articleList" data-role="listview" data-inset="false">
+				<li><a href="http://google.com">Google</a></li>
+			</ul>	
+			<a  data-role="button" href="http://dailyjs.com">Daily JS</a>
+			<a  data-role="button" href="#recommendPg">Recommend To Friend</a>
+		</div><!-- /content -->
+	</div><!-- /page -->
+
+	<div id="story" data-role="page" data-add-back-btn="true">
+		<div data-role="header">
+			<h1 id="storyTitle">Story Title</h1>
+		</div><!-- /header -->
+		<div id="storyBody" data-role="content">	
+			Story Body
+		</div><!-- /content -->
+	</div><!-- /map0 -->
+
+	<div id="recommendPg" data-role="page" data-add-back-btn="true">
+		<div data-role="header" data-add-back-btn="true">
+			<h1>Recommend Nodereader to Friend</h1>
+		</div><!-- /header -->
+		<div data-role="content">
+		<!-- need from, to, body -->	
+			<form> 
+			<label for="from" class="ui-hidden-accessible">Your email:</label>
+			<input type="text" name="from" id="from" value="" placeholder="your email"/>
+			<label for="to" class="ui-hidden-accessible">Friend's email':</label>
+			<input type="text" name="to" id="to" value="" placeholder="to"/>
+			<label for="subject">Subject:</label>
+			<input type="text" name="subject" id="subject" value="Node article of interest" placeholder="subject"/>
+			<label for="message">Your message:</label>
+			<textarea name="message" id="message">
+			Think you will enjoy this node article from Dailyjs.com.
+			</textarea>
+			<a id="sendFriendBut" data-role="button" href="#">Send to Friend</a>
+			</form>
+		</div><!-- /content -->
+	</div><!-- /foodPg -->
+<script>
+$.getJSON('http://127.0.0.1/nodereader/_design/nodereader/_view/articles', function(data) {
+  var x='';
+  $.each(data.rows, function(key, val) {
+    //alert(key+"  val="+val.key);
+    //alert(key+"  title="+val.value.title;
+    //alert(val+"  val="+val.key);
+    //alert(data.rows[key]+"  val="+data.rows[val]);
+    var y=val.value.title;
+    var yy=y.indexOf(':');
+    if (yy>0){
+	   y=y.substr(yy+1);
+	}
+	x=x+'<li><a rel="external" href="'+val.key+'">'+y+'</a></li>'
+   });
+   //alert("x="+x);
+   $("#articleList").html(x).listview('refresh');
+});
+
+  var urlTags="http://127.0.0.1/nodereader/_design/noderunner/_view/tags";
+$.getJSON(urlTags, function(data) {
+  var xx=[];
+  var x='';
+  $.each(data.rows, function(key, val) {
+	xx.push(val.value+"|"+val.key)
+    //alert(key+"  val="+val.key);
+  });
+  xx.sort();
+  //alert(x);
+  for (var i=0; i<xx.length;i++){
+    var y=xx[i].split("|");	
+    x=x+'<li><a rel="external" href="'+y[1]+'">'+y[0]+'</a></li>'
+  }
+  $("#tagList").html(x).listview('refresh');
+});
+
+$('#sendFriendBut').click(function() {
+  sendmail();
+  $.mobile.changePage($("#startPg"), "slide");	
+});
+
+function sendmail(){
+	var url='https://sendgrid.com/api/mail.send.json';
+	var data={};
+	data.to=$('#to').val();
+	data.from=$('#from').val();
+	data.subject=$('#subject').val();
+	data.text=$('#message').val();
+	data.api_user='yourUserName';
+	data.api_key='yourAPIkey';
+	$.ajax({
+	  url: url,
+	  dataType: 'json',
+	  data: data,
+	  sucess: okayman
+	});
+}
+function okayman(){
+	$.mobile.changePage($("#startPg"), "slide");	
+}
+</script>
+</body>
+</html>
